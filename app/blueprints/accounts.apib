@@ -1,0 +1,217 @@
+FORMAT: 1A
+HOST: https://api.factoryfour.com/accounts
+
+# Accounts
+
+FactoryFour Accounts Service for interaction with Auth0 and managing organizations.
+
+User app metadata will take the following format:
+```javascript 
+app_metadata: {
+    orgId: 'organization_id',
+    orgType: 'application_name|application_role',
+    role: 'user_role'
+}
+```
+
+Example for a CAST Clinician
+```javascript 
+app_metadata: {
+    orgId: 'org123',
+    orgType: 'cast|clinic',
+    role: 'user'
+}
+```
+
+Example for a CAST Vendor Owner
+```javascript 
+app_metadata: {
+    orgId: 'org987',
+    orgType: 'cast|vendor',
+    role: 'owner'
+}
+```
+
+## Organization [/organizations]
+Used only to create a new organization
+
+### Create a New Organization [POST]
+
+Create an organization with a single owner user.
+
++ Request (application/json)
+
+    + Attributes (object)
+        + organization (object)
+            + name: Fusiform (string, required) - Organization name
+            + type: cast|clinic (string, required) - cast|clinic or cast|vendor
+            + address (object, required)
+                + street1: 910 N Calvert St (string, required) - Address first line
+                + street2 (string, optional) - Address second line
+                + city: Baltimore (string, required) - Address city
+                + state: MD (string, required) - State 2 letter abbreviation
+                + zip: 21202 (number, required) - 5 digit zip code
+            + metadata (object)
+        + owner (object)
+            + email: alexjmathews
+            + first_name: Alex
+            + last_name: Mathews
+            + phone: 7148516800
+            + password: passw0rd
+
++ Response 201 (application/json)
+
+    + Attributes (object)
+        + data (object)
+            + organization (Organization)
+            + owner (User)
+                + role: owner
+        + info (Info)
+            + method: POST
+            + url: /organizations/create
+            + message: Successfully created organization
+
+## Organization Operations [/organizations/{orgId}]
+
+### Get Organization [GET]
+
+Get information about an Organization. User's that aren't a member of the organization only get name.
+
+
++ Response 200 (application/json)
+
+    + Attributes (object)
+        + data (Organization)
+            + name: FactoryFour
+        + meta (Info)
+            + url: /organizations/abcd1234
+            + method: GET
+            + message: Organization information
+            
+### Update Organization [PUT]
+
+Update an Organization
+
++ Request (application/json)
+
+    + Attributes (object)
+        + name: Fusiform (string, required) - Organization name
+        + address (object, required)
+            + street1: 910 N Calvert St (string, required) - Address first line
+            + street2 (string, optional) - Address second line
+            + city: Baltimore (string, required) - Address city
+            + state: MD (string, required) - State 2 letter abbreviation
+            + zip: 21202 (number, required) - 5 digit zip code
+        + metadata (object)
+
++ Response 200 (application/json)
+
+    + Attributes (object)
+        + data (Organization)
+        + meta (Info)
+            + url: /organizations/abcd1234
+            + method: PUT
+            + message: Updated organization
+
+## Organization Users [/organizations/{orgId}/users/]
+
+### Add a User to an Organization [POST]
+Add a user to an organization
+
++ Request
+
+    + Attributes (object)
+        + email: param@factoryfour.com
+        + first_name: Param
+        + last_name: Shah
+        + role: admin
+        + phone: 7148516800
+        + password: passw0rd
+
+
+                
++ Response 201 (application/json)
+
+    + Attributes (object)
+        + data (User)
+            + firstName: Param
+            + lastName: Shah
+            + phone: 666
+            + email: param@factoryfour.com
+            + role: admin
+            + id: 3
+        + meta (Info)
+            + method: POST
+            + statusCode: 201
+            + url: organizations/abcd1234/users/
+            + message: Successfully added user to organization
+
+### Retrieve Organization Users [GET]
+Returns a specific Organization User(s) based on query
+
++ Response 200 (application/json)
+
+    + Attributes (object)
+        + data 
+            + users (array[User])
+        + meta (Info)
+            + method: GET
+            + url: /organizations/abcd1234/users/
+            + message: Retrieved Organization Users
+            
+## User Operations [/users/{userId}]
+
+### Get a User [GET]
+Get information about a user.
+
++ Request (application/json)
+
+    + Headers
+    
+            Authorization: Bearer JWT
+
++ Response 200 (application/json)
+
+    + Attributes (object)
+        + data (object)
+            + user (User)
+        + meta (Info)
+            + url: /organizations/abcd1234/users/1
+            + method: GET
+            + message: Successfully updated organization user
+
+# Data Structures
+
+## User (object)
++ email: alexjmathews
++ id: auth0|user1234
++ picture: https://static.factoryfour.com/picture/123 - avatar image
++ user_metadata (object)
+    + first_name: Alex
+    + last_name: Mathews
+    + phone: 7148516800 (string)
++ app_metadata (object)
+    + orgId: org1234 (string) - organization id
+    + orgType: cast|clinic (string) - cast|clinic or cast|vendor
+    + role (string) - standard, admin, owner
+
+## Organization (object)
++ id: org1234
++ name: Fusiform (string, required) - Organization name
++ type: cast|clinic (string, required) - applicationType|applicationRole like cast|vendor
++ address (object, required)
+    + street1: 910 N Calvert St (string, required) - Address first line
+    + street2 (string, optional) - Address second line
+    + city: Baltimore (string, required) - Address city
+    + state: MD (string, required) - State 2 letter abbreviation
+    + zip: 21202 (number, required) - 5 digit zip code
++ metadata (object) - general metadata of organization
+
+## Info (object)
+
++ statusCode: 200 (number) - HTTP Status Code
++ method (string) - HTTP method
++ url (string) - uri request route
++ message (string) - Message containing info relevant to success/failure of request
++ timestamp: 1487348051910 (number) - UNIX time code
+

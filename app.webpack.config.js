@@ -15,8 +15,13 @@ module.exports = (env, argv) => ({
 					},
 				},
 			},
+			{
+				test: /\.apib?$/,
+				use: 'raw-loader',
+			},
 		],
 	},
+	node: { fs: 'empty' },
 	// resolve: {
 	// 	extensions: ['*', '.js', '.jsx'],
 	// 	alias: {
